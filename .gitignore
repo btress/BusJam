@@ -1,0 +1,35 @@
+# --- Unity generated files ---
+Library/
+Temp/
+Obj/
+Build/
+Builds/
+UserSettings/
+MemoryCaptures/
+Logs/
+
+# --- Visual Studio / VS Code / Rider ---
+.vs/
+.vscode/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.opendb
+*.VC.db
+
+# --- OS generated files ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

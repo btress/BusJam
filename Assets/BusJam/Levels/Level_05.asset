@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c432a8894943f6f4fa102071e4887dc6, type: 3}
+  m_Name: Level_05
+  m_EditorClassIdentifier: 
+  width: 7
+  height: 7
+  bayCount: 2
+  buses:
+  - tail: {x: 6, y: 6}
+    direction: 2
+    length: 2
+    colorID: 2
+  - tail: {x: 6, y: 3}
+    direction: 2
+    length: 3
+    colorID: 2
+  - tail: {x: 2, y: 5}
+    direction: 3
+    length: 3
+    colorID: 2
+  - tail: {x: 3, y: 2}
+    direction: 1
+    length: 3
+    colorID: 5
+  - tail: {x: 3, y: 0}
+    direction: 1
+    length: 2
+    colorID: 4
+  - tail: {x: 2, y: 2}
+    direction: 2
+    length: 2
+    colorID: 1
+  - tail: {x: 3, y: 5}
+    direction: 0
+    length: 2
+    colorID: 2
+  - tail: {x: 0, y: 3}
+    direction: 0
+    length: 2
+    colorID: 0
+  - tail: {x: 0, y: 0}
+    direction: 0
+    length: 3
+    colorID: 3
+  - tail: {x: 5, y: 3}
+    direction: 0
+    length: 2
+    colorID: 3
+  - tail: {x: 1, y: 4}
+    direction: 1
+    length: 2
+    colorID: 2
+  - tail: {x: 2, y: 0}
+    direction: 3
+    length: 2
+    colorID: 3
+  - tail: {x: 1, y: 2}
+    direction: 2
+    length: 2
+    colorID: 5
+  passengerOrder: 000000000200000002000000000000000000000002000000040000000400000004000000030000000200000002000000020000000200000003000000030000000200000002000000020000000200000002000000030000000300000003000000050000000500000005000000020000000200000002000000030000000300000003000000010000000100000001000000050000000500000005000000

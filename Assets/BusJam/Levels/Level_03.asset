@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c432a8894943f6f4fa102071e4887dc6, type: 3}
+  m_Name: Level_03
+  m_EditorClassIdentifier: 
+  width: 5
+  height: 6
+  bayCount: 3
+  buses:
+  - tail: {x: 1, y: 3}
+    direction: 1
+    length: 2
+    colorID: 2
+  - tail: {x: 1, y: 4}
+    direction: 1
+    length: 2
+    colorID: 1
+  - tail: {x: 1, y: 0}
+    direction: 1
+    length: 2
+    colorID: 3
+  - tail: {x: 0, y: 4}
+    direction: 2
+    length: 3
+    colorID: 1
+  - tail: {x: 3, y: 1}
+    direction: 3
+    length: 2
+    colorID: 2
+  - tail: {x: 4, y: 4}
+    direction: 2
+    length: 3
+    colorID: 2
+  - tail: {x: 3, y: 3}
+    direction: 2
+    length: 2
+    colorID: 1
+  - tail: {x: 4, y: 5}
+    direction: 3
+    length: 3
+    colorID: 0
+  passengerOrder: 020000000200000002000000010000000100000002000000010000000100000001000000030000000300000001000000010000000100000001000000020000000200000002000000030000000000000000000000020000000000000002000000

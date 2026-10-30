@@ -8,13 +8,13 @@ namespace BusJam
     public static class Palette
     {
         public const int ColorCount = 6;
-        static readonly Color[] colors =
+        static readonly Color[] _colors =
         {
             new Color(0.93f, 0.27f, 0.27f), new Color(0.30f, 0.78f, 0.35f), new Color(0.25f, 0.50f, 0.95f),
             new Color(0.98f, 0.82f, 0.20f), new Color(0.65f, 0.38f, 0.88f), new Color(0.98f, 0.55f, 0.16f)
         };
-        public static Color Get(GameColor c) => colors[(int)c];
-        public static Color[] All => colors;
+        public static Color Get(GameColor c) => _colors[(int)c];
+        public static Color[] All => _colors;
 
         public static Vector2Int ToVec(this Direction d)
         {

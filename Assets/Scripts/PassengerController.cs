@@ -13,9 +13,9 @@ namespace BusJam
         public static float SeatDrop = 0.25f;       // ha nhan vat xuong (ti le chieu cao)
         public static float SeatYaw = 0f;           // huong ngoi so voi huong xe (0 = quay ve dau xe)
         public static Vector3 SeatOffset = Vector3.zero;   // lech them (toa do local cua xe)
-        static readonly int IdleH = Animator.StringToHash("Idle");
-        static readonly int RunH = Animator.StringToHash("Running");
-        static readonly int SitH = Animator.StringToHash("Sitting");
+        static readonly int _idleH = Animator.StringToHash("Idle");
+        static readonly int _runH = Animator.StringToHash("Running");
+        static readonly int _sitH = Animator.StringToHash("Sitting");
 
         [HideInInspector] public GameObject modelPrefab;
         [HideInInspector] public float yawOffset;
@@ -63,7 +63,7 @@ namespace BusJam
             transform.localScale = Vector3.one;
             Color col = Palette.Get(c);
             foreach (var r in _renderers) Visuals.SetColor(r, col);
-            Play(IdleH, 0f);
+            Play(_idleH, 0f);
         }
 
         public void ResetForPool() { transform.DOKill(); }
@@ -84,8 +84,8 @@ namespace BusJam
         {
             transform.DOKill();
             if ((transform.position - pos).sqrMagnitude < 0.0004f) return;
-            Play(RunH, 0.08f);
-            transform.DOMove(pos, t).SetEase(Ease.Linear).OnComplete(() => Play(IdleH, 0.1f));
+            Play(_runH, 0.08f);
+            transform.DOMove(pos, t).SetEase(Ease.Linear).OnComplete(() => Play(_idleH, 0.1f));
         }
 
         /// <summary>Chay toi xe (Running) roi nhay len GridPartPrefab va ngoi (Sitting)</summary>
@@ -97,7 +97,7 @@ namespace BusJam
             float dur = Mathf.Clamp(Vector3.Distance(transform.position, ground) / 6f, 0.25f, 0.8f);
 
             AudioManager.I.Play(Sfx.Step);
-            Play(RunH, 0.08f);
+            Play(_runH, 0.08f);
 
             var s = DOTween.Sequence();
             s.Append(transform.DOLookAt(ground, 0.08f, AxisConstraint.Y));
@@ -111,7 +111,7 @@ namespace BusJam
                 s.AppendCallback(() =>
                 {
                     transform.SetParent(bus.transform, true);   // di cung xe khi xe roi ben
-                    Play(SitH, 0.1f);
+                    Play(_sitH, 0.1f);
                 });
             }
             else s.Append(transform.DOScale(0f, 0.15f));

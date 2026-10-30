@@ -8,13 +8,13 @@ namespace BusJam
     public class GameManager : MonoBehaviour
     {
         public static GameManager I { get; private set; }
-        const string KeyLevel = "BusJam_Level";
+        const string _keyLevel = "BusJam_Level";
 
         [Header("Data")]
         public List<LevelDataSO> levels = new List<LevelDataSO>();
         [Header("Background")]
         public Texture2D backgroundTexture;
-        [Header("3D models cua ban (de trong = hinh khoi placeholder)")]
+        [Header("3D models (de trong = hinh khoi placeholder)")]
         public GameObject busModel;
         public GameObject passengerModel;
         [Tooltip("Neu dau xe quay nguoc: dat 180 (hoac 90/270)")] public float busYawOffset = 0f;
@@ -28,6 +28,13 @@ namespace BusJam
         [Tooltip("Tu khoa ten material than xe de doi mau, vd: green,body. De trong = tu dong tim material mau don sac")] public string busTintKeywords = "";
         public bool tintBusBody = true;
 
+        [Header("UI Prefabs (Tuy chon neu chua co trong Scene)")]
+        public GameObject hudCanvasPrefab;
+        public GameObject popupCanvasPrefab;
+        public GameObject vfxCanvasPrefab;
+
+        public SettingsManager Settings { get; private set; }
+        public HapticManager Haptics { get; private set; }
         public GridManager Grid { get; private set; }
         public BayManager Bays { get; private set; }
         public PassengerQueue Queue { get; private set; }
@@ -63,33 +70,59 @@ namespace BusJam
             I = this;
             transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
             transform.localScale = Vector3.one;
-            BusController.TintKeywords = busTintKeywords; BusController.TintBody = tintBusBody;
-            PassengerController.StandHeight = passengerHeight; PassengerController.ShowSeated = showSeatedPassengers;
-            PassengerController.SeatedScale = seatedScale; PassengerController.SeatDrop = seatDrop;
-            PassengerController.SeatYaw = seatYaw; PassengerController.SeatOffset = seatOffset;
+
+            BusController.TintKeywords = busTintKeywords;
+            BusController.TintBody = tintBusBody;
+            PassengerController.StandHeight = passengerHeight;
+            PassengerController.ShowSeated = showSeatedPassengers;
+            PassengerController.SeatedScale = seatedScale;
+            PassengerController.SeatDrop = seatDrop;
+            PassengerController.SeatYaw = seatYaw;
+            PassengerController.SeatOffset = seatOffset;
+
             Application.targetFrameRate = 60;
             Screen.orientation = ScreenOrientation.Portrait;
             Input.multiTouchEnabled = false;
             DOTween.SetTweensCapacity(500, 100);
+
             SetupCamera();
+            SetupLighting();
             Make<BackgroundController>("Background").Init(_cam, backgroundTexture);
 
+            Settings = FindObjectOfType<SettingsManager>();
+            if (Settings == null) Settings = Make<SettingsManager>("Settings");
+
+            Haptics = FindObjectOfType<HapticManager>();
+            if (Haptics == null) Haptics = Make<HapticManager>("Haptics");
+
             Audio = Make<AudioManager>("Audio");
-            Shake = Make<CameraShake>("CameraShake"); Shake.Init(_cam.transform);
-            Pools = Make<PoolHub>("Pools"); Pools.Init(busModel, passengerModel, busYawOffset, passengerYawOffset);
-            Fx = Make<ParticlePool>("Fx"); Fx.Init();
+            Shake = Make<CameraShake>("CameraShake");
+            Shake.Init(_cam.transform);
+
+            Pools = Make<PoolHub>("Pools");
+            Pools.Init(busModel, passengerModel, busYawOffset, passengerYawOffset);
+
+            Fx = Make<ParticlePool>("Fx");
+            Fx.Init();
+
             Grid = Make<GridManager>("Grid");
             Bays = Make<BayManager>("Bays");
             Queue = Make<PassengerQueue>("Queue");
-            UI = Make<UIManager>("UI");
+
+            UI = FindObjectOfType<UIManager>();
+            if (UI == null) UI = Make<UIManager>("UI");
+
             Make<InputHandler>("Input");
         }
 
         void Start()
         {
-            UI.Build(RestartLevel);
-            if (levels == null || levels.Count == 0) { Debug.LogError("GameManager: chua gan LevelDataSO nao. Chay menu BusJam > Setup Everything."); return; }
-            _levelIndex = PlayerPrefs.GetInt(KeyLevel, 0);
+            if (levels == null || levels.Count == 0)
+            {
+                Debug.LogError("GameManager: chua gan LevelDataSO nao. Chay menu BusJam > Setup Everything.");
+                return;
+            }
+            _levelIndex = PlayerPrefs.GetInt(_keyLevel, 0);
             StartCoroutine(LoadLevelRoutine(_levelIndex));
         }
 
@@ -104,27 +137,59 @@ namespace BusJam
             }
             _cam.orthographic = true;
             _cam.transform.rotation = Quaternion.Euler(70f, 0f, 0f);       // nhin tu tren xuong, nghieng 70 do
-            _cam.transform.position = new Vector3(0f, 0f, 0f) - _cam.transform.forward * 40f;
-            _cam.nearClipPlane = 0.1f; _cam.farClipPlane = 200f;
+            _cam.transform.position = new Vector3(0f, 0f, 0.45f) - _cam.transform.forward * 40f;
+            _cam.nearClipPlane = 0.1f;
+            _cam.farClipPlane = 200f;
             float aspect = (float)Screen.width / Mathf.Max(1, Screen.height);
             _cam.orthographicSize = Mathf.Max(9.6f, 5.4f / aspect);   // luon thay du be rong 10.8 unit
             _cam.clearFlags = CameraClearFlags.SolidColor;
             _cam.backgroundColor = new Color(0.82f, 0.86f, 0.94f);
         }
 
+        void SetupLighting()
+        {
+            var lights = FindObjectsOfType<Light>();
+            Light dirLight = null;
+            foreach (var l in lights)
+            {
+                if (l.type == LightType.Directional) { dirLight = l; break; }
+            }
+
+            if (dirLight == null)
+            {
+                var lightGo = new GameObject("Directional Light");
+                dirLight = lightGo.AddComponent<Light>();
+                dirLight.type = LightType.Directional;
+            }
+            dirLight.color = new Color(1f, 0.98f, 0.92f);
+            dirLight.intensity = 0.5f;
+            dirLight.transform.rotation = Quaternion.Euler(55f, -30f, 0f);
+
+            RenderSettings.sun = dirLight;
+            RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
+            RenderSettings.ambientLight = new Color(0.85f, 0.88f, 0.93f);
+            RenderSettings.ambientIntensity = 1.2f;
+        }
+
         // ================= Level flow =================
         void CleanupBoard()
         {
             if (_boardCo != null) StopCoroutine(_boardCo);
-            _boardCo = null; _boardRunning = false; _again = false; _departing = 0;
+            _boardCo = null;
+            _boardRunning = false;
+            _again = false;
+            _departing = 0;
             Pools.ReleaseAll();     // thu hoi xe + hanh khach ve Pool (khong Destroy)
             Fx.ReleaseAll();
-            Grid.Clear(); Bays.Clear(); Queue.Clear();
+            Grid.Clear();
+            Bays.Clear();
+            Queue.Clear();
         }
 
         IEnumerator LoadLevelRoutine(int absIndex)
         {
-            _isBusy = true; _state = GameState.Loading;
+            _isBusy = true;
+            _state = GameState.Loading;
             UI.Hide();
             CleanupBoard();
 
@@ -143,9 +208,11 @@ namespace BusJam
             Physics.SyncTransforms();
 
             UI.SetLevel(absIndex + 1);
+            UI.SyncCoinsDisplay();
             UpdateHud();
             yield return new WaitForSeconds(0.5f);
-            _state = GameState.Playing; _isBusy = false;
+            _state = GameState.Playing;
+            _isBusy = false;
         }
 
         void UpdateHud() => UI.SetInfo("Passengers: " + Queue.Remaining);
@@ -161,15 +228,18 @@ namespace BusJam
         {
             if (_isBusy || _state != GameState.Playing || bus.State != BusController.BusState.Parked) return;
             AudioManager.I.Play(Sfx.Click);
+            if (Haptics != null) Haptics.LightImpact();
 
             if (!Grid.CheckExit(bus, out var blocker, out _))
             {
+                if (Haptics != null) Haptics.Warning();
                 bus.PlayBlocked(blocker);               // nhich 0.2m roi giat nguoc + rung
                 return;
             }
             int bay = Bays.Reserve(bus);
             if (bay < 0)                                // ben da day
             {
+                if (Haptics != null) Haptics.Warning();
                 Bays.PlayFullError();
                 AudioManager.I.Play(Sfx.Error);
                 Shake.Light();
@@ -222,7 +292,8 @@ namespace BusJam
                     leaving.DepartFromBay(Grid.Top + 0.9f, () => OnBusLeft(leaving));
                 }
             }
-            _boardRunning = false; _boardCo = null;
+            _boardRunning = false;
+            _boardCo = null;
             EvaluateEnd();
         }
 
@@ -257,32 +328,44 @@ namespace BusJam
 
         void Win()
         {
-            _state = GameState.Won; _isBusy = true;
-            PlayerPrefs.SetInt(KeyLevel, _levelIndex + 1); PlayerPrefs.Save();
+            _state = GameState.Won;
+            _isBusy = true;
+            PlayerPrefs.SetInt(_keyLevel, _levelIndex + 1);
+            PlayerPrefs.Save();
             AudioManager.I.Play(Sfx.Win);
+            if (Haptics != null) Haptics.Success();
             Shake.Strong();
             Fx.Play(FxType.Confetti, new Vector3(-3.5f, 0.5f, -6f));
             Fx.Play(FxType.Confetti, new Vector3(3.5f, 0.5f, -6f));
             Fx.Play(FxType.Confetti, new Vector3(0f, 0.5f, -7f));
-            StartCoroutine(PopupDelayed("LEVEL COMPLETE!", "Next Level", new Color(0.25f, 0.7f, 0.35f), () =>
+
+            StartCoroutine(WinDelayed());
+        }
+
+        IEnumerator WinDelayed()
+        {
+            yield return new WaitForSeconds(0.8f);
+            UI.ShowWin(25, () =>
             {
                 _levelIndex++;
                 StartCoroutine(LoadLevelRoutine(_levelIndex));
-            }));
+            });
         }
 
         void Lose()
         {
-            _state = GameState.Lost; _isBusy = true;
+            _state = GameState.Lost;
+            _isBusy = true;
             AudioManager.I.Play(Sfx.Lose);
+            if (Haptics != null) Haptics.Warning();
             Shake.Strong();
-            StartCoroutine(PopupDelayed("NO ROOM LEFT!", "Retry", new Color(0.85f, 0.35f, 0.3f), () => StartCoroutine(LoadLevelRoutine(_levelIndex))));
+            StartCoroutine(LoseDelayed());
         }
 
-        IEnumerator PopupDelayed(string title, string btn, Color c, System.Action cb)
+        IEnumerator LoseDelayed()
         {
-            yield return new WaitForSeconds(0.9f);
-            UI.ShowPopup(title, btn, c, cb);
+            yield return new WaitForSeconds(0.8f);
+            UI.ShowLose(() => StartCoroutine(LoadLevelRoutine(_levelIndex)));
         }
     }
 }

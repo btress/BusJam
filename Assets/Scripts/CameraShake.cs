@@ -5,8 +5,16 @@ namespace BusJam
 {
     public class CameraShake : MonoBehaviour
     {
+        public static CameraShake I { get; private set; }
         public bool vibrateOnBlocked = true;   // Handheld.Vibrate tren mobile
-        Transform _cam; Vector3 _home;
+        Transform _cam;
+        Vector3 _home;
+
+        void Awake()
+        {
+            if (I != null && I != this) { Destroy(gameObject); return; }
+            I = this;
+        }
 
         public void Init(Transform cam) { _cam = cam; _home = cam.position; }
 

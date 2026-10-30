@@ -13,8 +13,8 @@ namespace BusJam
         Renderer[] _marks;
         int _count;
         float _z;
-        static readonly Color Idle = new Color(0.50f, 0.48f, 0.58f);
-        static readonly Color Err = new Color(0.95f, 0.25f, 0.25f);
+        static readonly Color _idle = new Color(0.50f, 0.48f, 0.58f, 0.5f);
+        static readonly Color _err = new Color(0.95f, 0.25f, 0.25f);
 
         public Vector3 QueueFront => new Vector3(0, 0, _z + 2.2f);
 
@@ -23,7 +23,7 @@ namespace BusJam
             _marks = new Renderer[MaxBays];
             for (int i = 0; i < MaxBays; i++)
             {
-                _marks[i] = Visuals.Prim(transform, "Bay" + i, Vector3.zero, new Vector3(1.3f, 0.02f, 3.3f), Idle);
+                _marks[i] = Visuals.Prim(transform, "Bay" + i, Vector3.zero, new Vector3(1.3f, 0.02f, 3.3f), _idle);
                 _marks[i].gameObject.SetActive(false);
             }
         }
@@ -36,7 +36,7 @@ namespace BusJam
             for (int i = 0; i < MaxBays; i++)
             {
                 _marks[i].gameObject.SetActive(i < count);
-                Visuals.SetColor(_marks[i], Idle);
+                Visuals.SetColor(_marks[i], _idle);
                 if (i < count) _marks[i].transform.position = BayPos(i) + Vector3.up * 0.01f;
             }
         }
@@ -89,7 +89,7 @@ namespace BusJam
             {
                 var r = _marks[i];
                 DOTween.Kill(r);
-                DOTween.To(v => Visuals.SetColor(r, Color.Lerp(Idle, Err, v)), 0f, 1f, 0.12f)
+                DOTween.To(v => Visuals.SetColor(r, Color.Lerp(_idle, _err, v)), 0f, 1f, 0.12f)
                     .SetLoops(4, LoopType.Yoyo).SetTarget(r);
             }
         }
